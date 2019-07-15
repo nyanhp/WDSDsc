@@ -1,6 +1,6 @@
 version: 0.9.{build}
 environment:
-  apikey:
+  nugetapikey:
     secure: OX4AxdrgR7cWD+b3x/ZcjN87ij7UM1+HYsd/L3CJKxAkJ2ZEX3lIgvWDuoTMcKNM
 
 skip_commits:
