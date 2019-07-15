@@ -3,7 +3,7 @@ if ($env:BHBuildSystem -ne 'Unknown' -and $ENV:BHBranchName -eq "master")
     Deploy Module {
         By PSGalleryModule {
             FromSource (Join-Path $ENV:BHProjectPath $ENV:BHProjectName)
-            To PowerShell
+            To PSGallery
             WithOptions @{
                 ApiKey = $env:NugetApiKey
                 Force  = $true

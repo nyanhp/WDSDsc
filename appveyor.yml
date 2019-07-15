@@ -1,4 +1,4 @@
-version: 0.9.{build}
+version: 0.10.0
 environment:
   nugetapikey:
     secure: OX4AxdrgR7cWD+b3x/ZcjN87ij7UM1+HYsd/L3CJKxAkJ2ZEX3lIgvWDuoTMcKNM
@@ -6,6 +6,10 @@ environment:
 skip_commits:
   message: /updated readme.*|update readme.*s/
 build: false
+
+branches:
+  except:
+    - /(?i).*release.*/
 
 before_build:
   - nuget restore
