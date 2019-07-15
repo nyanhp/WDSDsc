@@ -1,0 +1,19 @@
+[ClassVersion("1.0.0.0"), FriendlyName("WdsInstallImage")]
+class JHP_WdsInstallImage : OMI_BaseResource
+{
+    [Write, Description("Indicates that image verification will be skipped")] Boolean SkipVerify;
+    [Write, Description("The name of the image group to add the image to")] String ImageGroup;
+    [Write, Description("The display order in the PXE menu")] Uint32 DisplayOrder;
+    [Write, Description("The unattend file associated with this image")] String UnattendFile;
+    [Write, Description("The path to the install image (wim, vhdx)")] String Path;
+    [Key, Description("The new name of the imported image")] String NewImageName;
+    [Write, Description("The new description")] String NewDescription;
+    [Write, Description("The new file name")] String NewFileName;
+    [Required, Description("The name of the image inside the WIM file. Not supported with VHD files")] String ImageName;
+    [Write, Description("The minimum client count to start a multicast transmission")] Uint32 ClientCount;
+    [Write, Description("The start time for a scheduled transmission")] Datetime StartTime;
+    [Write, Description("The name of the transmission")] String TransmissionName;
+    [Write, Description("Indicates that AutoCast or ScheduledCast should be used")] Boolean Multicast;
+    [Write, Description("Indicates that the transmission will be manually started.")] Boolean ManualStart;
+        [Write, ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] String Ensure;
+};

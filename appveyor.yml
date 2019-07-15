@@ -1,0 +1,21 @@
+version: 0.9.{build}
+environment:
+  apikey:
+    secure: OX4AxdrgR7cWD+b3x/ZcjN87ij7UM1+HYsd/L3CJKxAkJ2ZEX3lIgvWDuoTMcKNM
+
+skip_commits:
+  message: /updated readme.*|update readme.*s/
+build: false
+
+before_build:
+  - nuget restore
+  - ps: |
+        Write-Host "'before_build' block"
+
+        Write-Host "Setting version number in files"
+        Add-AppveyorMessage -Message "Setting version number in files" -Category Information
+        gci -Filter "$($env:APPVEYOR_REPO_NAME).psd1" -Recurse | foreach {(Get-Content $_.FullName -Raw) -replace "ModuleVersion += '\d\.\d\.\d'", "ModuleVersion = '$env:APPVEYOR_BUILD_VERSION'" | Out-File $_.FullName}
+
+#Kick off the CI/CD pipeline
+test_script:
+  - ps: . .\build.ps1

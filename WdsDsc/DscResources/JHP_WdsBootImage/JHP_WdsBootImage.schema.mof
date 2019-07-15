@@ -1,0 +1,14 @@
+[ClassVersion("1.0.0.0"), FriendlyName("WdsBootImage")]
+class JHP_WdsBootImage : OMI_BaseResource
+{
+    [Write, Description("The relative path to the boot image")] String Path;
+    [Key, Description("The new name of the boot image")] String NewImageName;
+    [Write, Description("The new description of the boot image")] String NewDescription;
+    [Write, Description("The new file name of the boot image")] String NewFileName;
+    [Write, Description("The name of the multicast transmission. Valid if Multicast is set to $true")] String TransmissionName;
+    [Write, Description("The order in which PXE entries are displayed")] Uint32 DisplayOrder;
+    [Write, ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] String Ensure;
+    [Write, Description("Architecture of the image, only valid and required if Ensure equals Absent"), ValueMap{"X86","Ia64","X64","Arm"},Values{"X86","Ia64","X64","Arm"}] String Architecture;
+    [Write] Boolean Multicast;
+    [Write] Boolean SkipVerify;
+};

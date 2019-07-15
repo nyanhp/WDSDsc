@@ -1,0 +1,11 @@
+[ClassVersion("1.0.0.0"), FriendlyName("WdsInitialize")]
+class JHP_WdsInitialize : OMI_BaseResource
+{
+    [Key, Description("Specifies the resource is a single instance, the value must be 'Yes'"), ValueMap{"Yes"}, Values{"Yes"}] String IsSingleInstance;
+    [Required, Description("Specifies the location of image share")] String Path;
+    [Write, Description("The remote host that should be initialized")] String ComputerName;
+    [Write, Description("Indicates that this is a standalone instance and not integrated into Active Directory")] Boolean Standalone;
+    [Write, Description("Indicates that this instance should be authorized in DHCP")] Boolean Authorized;
+    [Write, ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] String Ensure;
+    [Read] Boolean Configured;
+};

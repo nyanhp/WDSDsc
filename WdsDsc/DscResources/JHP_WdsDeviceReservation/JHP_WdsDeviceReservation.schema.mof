@@ -1,0 +1,17 @@
+[ClassVersion("1.0.0.0"), FriendlyName("WdsDeviceReservation")]
+class JHP_WdsDeviceReservation : OMI_BaseResource
+{
+    [Key, Description("Device identifier, e.g. object ID, MAC address")] String DeviceID;
+    [Required, Description("The name of the device")] String DeviceName;
+    [Write, Description("User account to join the domain with")] String User;
+    [Write, Description("The policy to adopt"), ValueMap{"Abort","NoPrompt","OptIn","OptOut"}, Values{"Abort","NoPrompt","OptIn","OptOut"}] String PxePromptPolicy;
+    [Write, Description("The rights to assign to the join user"), ValueMap{"Full","JoinOnly"}, Values{"Full","JoinOnly"}] String JoinRights;
+    [Write, Description("The group of the device")] String Group;
+    [Write, Description("The relative path of the unattend file to configure")] String WdsClientUnattend;
+    [Write, Description("The relative path of the boot image")] String BootImagePath;
+    [Write, Description("The OU to join the device to")] String OU;
+    [Write, Description("The domain to join")] String Domain;
+    [Write, Description("The referral server to configure")] String ReferralServer;
+    [Write, ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] String Ensure;
+    [Write] Boolean JoinDomain;
+};
