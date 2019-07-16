@@ -1,4 +1,4 @@
-version: 0.11.0
+version: 0.11.{build}
 environment:
   nugetapikey:
     secure: OX4AxdrgR7cWD+b3x/ZcjN87ij7UM1+HYsd/L3CJKxAkJ2ZEX3lIgvWDuoTMcKNM
