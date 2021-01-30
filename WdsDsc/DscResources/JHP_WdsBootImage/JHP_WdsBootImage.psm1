@@ -62,7 +62,7 @@ function Get-TargetResource
 
     if ($null -eq $bootImage)
     {
-        $imgName = (Get-WindowsImage -ImagePath $Path -Index 2 -ErrorAction SilentlyContinue).ImageName
+        $imgName = (Get-WindowsImage -ImagePath $Path -Index 1 -ErrorAction SilentlyContinue).ImageName
         $bootImage = Get-WdsBootImage -ImageName $imgName -ErrorAction SilentlyContinue
     }
 
