@@ -1,4 +1,4 @@
-
+﻿
 function Get-TargetResource
 {
     param
@@ -44,11 +44,11 @@ function Get-TargetResource
         [string]
         $Ensure = 'Present',
 
-        [bool]
+        [boolean]
         $JoinDomain
     )
 
-    $device = Get-WdsClient -DeviceId $DeviceId -ErrorAction SilentlyContinue
+    $device = Get-WdsClient -DeviceName $DeviceName -ErrorAction SilentlyContinue
 
     return @{
         BootImagePath     = $device.BootImagePath
@@ -111,7 +111,7 @@ function Set-TargetResource
         [string]
         $Ensure = 'Present',
 
-        [bool]
+        [boolean]
         $JoinDomain
     )
 
@@ -119,19 +119,43 @@ function Set-TargetResource
     $parameters = [hashtable]$PSBoundParameters
     $parameters.Remove('Ensure')
 
-    if ($null -ne $currentConfig.DeviceID -and $Ensure -eq 'Absent')
+    if( -not [string]::IsNullOrWhiteSpace( $JoinRights ) -and [string]::IsNullOrWhiteSpace( $User ) )
     {
-        Write-Verbose -Message "Removing client ID $($DeviceID)"
-        Remove-WdsClient -DeviceId $DeviceID
+        throw "ERROR: Parameter 'JoinRights' requires an none empty parameter 'User'." 
+    } 
+
+    if( -not [string]::IsNullOrWhiteSpace( $User ) -and [string]::IsNullOrWhiteSpace( $JoinRights ) )
+    {
+        throw "ERROR: Parameter 'User' requires an none empty parameter 'JoinRights'."
     }
-    elseif ($null -ne $currentConfig.DeviceID)
+
+    if ($null -ne $currentConfig.DeviceName -and $Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "Updating client ID $($DeviceID)"
+        Write-Verbose -Message "Removing client '$($currentConfig.DeviceName)'"
+        Remove-WdsClient -DeviceName $currentConfig.DeviceName
+    }
+    elseif ($null -ne $currentConfig.DeviceName)
+    {
+        # Domain is a now switch parameter and must be set to true. Domain name is moved to parameter DomainName
+        if( -not [string]::IsNullOrWhiteSpace( $Domain ) )
+        {
+            $parameters.DomainName = $Domain
+            $parameters.Domain = $true
+        }
+        else
+        {
+            $parameters.Remove('Domain')
+        }
+
+        # paramter OU can't be set
+        $parameters.Remove( 'OU' )
+
+        Write-Verbose -Message "Updating client '$DeviceName'"
         Set-WdsClient @parameters
     }
     else
     {
-        Write-Verbose -Message "Creating new client ID $($DeviceID)"
+        Write-Verbose -Message "Creating new client '$DeviceName' with ID '$DeviceID'"
         New-WdsClient @parameters
     }
 }
@@ -181,20 +205,21 @@ function Test-TargetResource
         [string]
         $Ensure = 'Present',
 
-        [bool]
+        [boolean]
         $JoinDomain
     )
 
     $currentStatus = Get-TargetResource @PSBoundParameters
     $parameters = [hashtable]$PSBoundParameters
-    foreach ($parameter in @('Verbose', 'Debug', 'ErrorAction', 'ErrorVariable', 'WarningAction', 'WarningVariable', 'OutVariable'))
+    # filter attributes that cannot be set again
+    foreach ($parameter in @('OU', 'User', 'Verbose', 'Debug', 'ErrorAction', 'ErrorVariable', 'WarningAction', 'WarningVariable', 'OutVariable'))
     {
         $parameters.Remove($parameter)
     }
 
     if ($Ensure -eq 'Absent')
     {
-        return ($null -eq $currentStatus.DeviceID)
+        return ($null -eq $currentStatus.DeviceName)
     }
 
     foreach ($kvp in $parameters.GetEnumerator())
