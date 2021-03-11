@@ -1,4 +1,4 @@
-function Get-TargetResource
+﻿function Get-TargetResource
 {
     param
     (
@@ -135,16 +135,42 @@ function Set-TargetResource
     $parameters = [hashtable] $PSBoundParameters
     $Parameters.Remove('Ensure')
 
-    if ($Ensure -eq 'Present' -and -not [string]::IsNullOrWhiteSpace($currentStatus.NewImageName))
+    $TempUnattendFile = New-TemporaryFile
+    
+    try 
     {
-        $parameters.Remove('Path')
-        $parameters.ImageName = $Parameters.NewImageName
-        $parameters.Remove('NewImageName')
-        $null = Set-WdsInstallImage @parameters
-        return
-    }
+        # the unattend file will be copied with all file attributes -> so we make a temporary copy to make it writeable for WDS
+        # if a readonly unattend file is copied, an installation of a computer based on this image will not use the unattend file
+        if( -not [string]::IsNullOrWhiteSpace($UnattendFile) -and (Test-Path -Path $UnattendFile) )
+        {
+            try 
+            {
+                Copy-Item -Path $UnattendFile -Destination $TempUnattendFile -ErrorAction Stop
+                $TempUnattendFile.Attributes = 'Normal'
+                $parameters.UnattendFile = $TempUnattendFile.FullName
+            }
+            catch
+            {
+                # try the original parameter
+            }
+        }
 
-    $null = Import-WdsInstallImage @parameters
+        if ($Ensure -eq 'Present' -and -not [string]::IsNullOrWhiteSpace($currentStatus.NewImageName))
+        {
+            $parameters.Remove('Path')
+            $parameters.ImageName = $Parameters.NewImageName
+            $parameters.Remove('NewImageName')
+            $null = Set-WdsInstallImage @parameters
+            return
+        }
+    
+        $null = Import-WdsInstallImage @parameters
+    }
+    finally
+    {
+        # remove temporary file
+        Remove-Item -Path $TempUnattendFile -ErrorAction SilentlyContinue
+    }
 }
 
 function Test-TargetResource
