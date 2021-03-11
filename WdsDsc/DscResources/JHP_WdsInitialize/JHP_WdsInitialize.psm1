@@ -32,10 +32,14 @@ function Start-NetProcess
 
     if ($process.ExitCode -notin $ExpectedReturnCodes)
     {
-        throw "wdsutil exited with $($process.ExitCode), output: $out, error stream $err"
+        throw "$process exited with $($process.ExitCode), output: $out, error stream $err"
     }
 
-    $out
+    [PSCustomObject]@{
+        Output   = $out
+        Error    = $err
+        ExitCode = $process.ExitCode
+    }
 }
 
 function Get-TargetResource
@@ -79,16 +83,16 @@ function Get-TargetResource
 
     $data = Start-NetProcess -Path $wdscmd.Source -ArgumentList $wdsutilArguments -ErrorAction SilentlyContinue
     
-    $null = $data -match 'RemoteInstall location:\s*(?<Path>[\w:\\]+)'
+    $null = $data.Output -match 'RemoteInstall location:\s*(?<Path>[\w:\\]+)'
     $remPath = $Matches.Path
 
     return @{
         IsSingleInstance = $IsSingleInstance
         Path             = $remPath
         ComputerName     = $ComputerName
-        Standalone       = $data -match 'Standalone configuration:\s*yes'
+        Standalone       = $data.Output -match 'Standalone configuration:\s*yes'
         Authorized       = $Authorized
-        Configured       = $data -notmatch 'WDS operational mode: Not Configured'
+        Configured       = $data.Output -notmatch 'WDS operational mode: Not Configured'
     }
 }
 
@@ -140,7 +144,13 @@ function Set-TargetResource
         }
     )
 
-    $data = Start-NetProcess -Path $wdscmd.Source -ArgumentList $wdsutilArguments -ErrorAction Stop
+    $result = Start-NetProcess -Path $wdscmd.Source -ArgumentList $wdsutilArguments -ErrorAction SilentlyContinue
+
+    if ($result.ExitCode -eq 0)
+    {
+        1..3 | ForEach-Object { Start-Service -Name WdsServer -ErrorAction SilentlyContinue }
+        Set-Service -Name WdsServer -StartupType Automatic
+    }
 }
 function Test-TargetResource
 {
