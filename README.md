@@ -1,3 +1,5 @@
+> This repo has moved to <https://codeberg.org/nyanhp/WDSDsc>
+
 # WDSDsc
 
 This repository contains the Windows Deployment Services DSC Resource Module.
